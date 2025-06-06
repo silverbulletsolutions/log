@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"context"
 )
 
 type LogLevel int
@@ -32,6 +33,9 @@ type Logger interface {
 	Panic(message string, panic error, data Data)
 
 	Scope(scope Data) Logger
+	ScopeData() Data
+
+	AugmentWithContext(ctx context.Context) Logger
 }
 
 type Int int

@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"context"
 )
 
 type ConsoleColors struct {
@@ -57,6 +58,14 @@ func NewConsoleLogger(minLogLevel LogLevel) *ConsoleLogger {
 
 func (c *ConsoleLogger) Scope(scope Data) Logger {
 	return c
+}
+
+func (c *ConsoleLogger) AugmentWithContext(ctx context.Context) Logger {
+	return c
+}
+
+func (c *ConsoleLogger) ScopeData() Data {
+	return Data{}
 }
 
 func (c *ConsoleLogger) Panic(message string, panicError error, data Data) {

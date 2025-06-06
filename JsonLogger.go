@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"context"
 )
 
 type JsonLogger struct {
@@ -39,6 +40,38 @@ func (c *JsonLogger) Scope(newData Data) Logger {
 		minLevel: c.minLevel,
 		scope:    newScope,
 	}
+}
+
+func (c *JsonLogger) AugmentWithContext(ctx context.Context) Logger {
+	source := FromContext(ctx)
+	if source == nil {
+		return c
+	}
+
+	newData := source.ScopeData()
+	if len(newData) == 0 {
+		return c
+	}
+
+	newScope := make(Data, len(c.scope)+len(newData))
+
+	for k, v := range newData {
+		newScope[k] = v
+	}
+
+	for k, v := range c.scope {
+		newScope[k] = v
+	}
+
+	return &JsonLogger{
+		r:        c.r,
+		minLevel: c.minLevel,
+		scope:    newScope,
+	}
+}
+
+func (c *JsonLogger) ScopeData() Data {
+	return c.scope
 }
 
 func (c *JsonLogger) Panic(message string, panicError error, data Data) {
@@ -119,10 +152,21 @@ func (c *JsonLogger) fillMessage(message string, data Data) string {
 	return c.r.ReplaceAllStringFunc(message, func(match string) string {
 		field := match[1 : len(match)-1]
 		d, ok := data[field]
-		if !ok {
+		if ok {
+			return d.GetString()
+		}
+
+		if field == "" || field[0] == '_' {
 			return match
 		}
-		return d.GetString()
+
+		// scope data can be used in string templates
+		d, ok = c.scope[field]
+		if ok {
+			return d.GetString()
+		}
+
+		return match
 	})
 }
 
