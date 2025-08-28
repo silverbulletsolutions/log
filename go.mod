@@ -1,3 +1,3 @@
-module git.silverwhisper.pl/golang-common-modules/log
+module git.silverbullet.pl/golang-common-modules/log
 
-go 1.21.1
+go 1.25.0
