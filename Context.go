@@ -4,7 +4,9 @@ import (
 	"context"
 )
 
-const logContextValueKey = "sw_gcm-l-ctx"
+type logContextValueKeyType string
+
+const logContextValueKey logContextValueKeyType = "sw_gcm-l-ctx"
 
 func FromContext(ctx context.Context) Logger {
 	l, ok := ctx.Value(logContextValueKey).(Logger)
@@ -17,4 +19,3 @@ func FromContext(ctx context.Context) Logger {
 func WithContext(parent context.Context, l Logger) context.Context {
 	return context.WithValue(parent, logContextValueKey, l)
 }
-
